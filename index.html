@@ -1,269 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4x4 Grid Permutation Comparator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-        .grid-container {
-            width: 48%;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        .cell {
-            border: 1px solid #ccc;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            background-color: #f9f9f9;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 8px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .stats {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-        }
-        .highlight {
-            background-color: #ffeb3b;
-            animation: pulse 1s;
-        }
-        @keyframes pulse {
-            0% { background-color: #ffeb3b; }
-            50% { background-color: #ffc107; }
-            100% { background-color: #ffeb3b; }
-        }
-        .permutation-info {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Permutation Generator & Filter</title>
+<!-- Google Fonts for a modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+    min-height: 100vh;
+    padding: 30px;
+    color: #fff;
+    position: relative;
+  }
+
+  /* Header with animated text */
+  h1 {
+    text-align: center;
+    font-size: 2.8em;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  /* Container styles with fade-in animation */
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  /* Grid sections styling */
+  .grid-section {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    flex: 1 1 300px;
+    max-width: 300px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .grid-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+  }
+
+  .grid-section h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  /* Grid inputs styling */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 50px);
+    gap: 10px;
+    justify-content: center;
+  }
+
+  input[type="text"] {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1.5em;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 12px #fff, 0 4px 8px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+  }
+
+  /* Buttons styling with icons */
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 15px auto 0 auto;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    background: #fff;
+    color: #333;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    background: #ffd700;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+
+  /* Search section styling */
+  #search-section {
+    text-align: center;
+    margin-bottom: 30px;
+    background: rgba(255,255,255,0.2);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #search-section h3 {
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  #searchInput {
+    width: 250px;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+  }
+
+  #searchInput:focus {
+    outline: none;
+    box-shadow: 0 0 12px #fff, 0 4px 8px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+  }
+
+  /* Results styling with fade-in */
+  #results {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+  }
+
+  .result-column {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    flex: 1 1 350px;
+    max-height: 600px;
+    overflow-y: auto;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .result-column:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+  }
+
+  .result-column h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #fff;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    color: #222;
+  }
+
+  /* Buttons with animated hover effects */
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-10px);}
+    60% {transform: translateY(-5px);}
+  }
+
+  /* Responsive adjustments for smaller screens */
+  @media(max-width: 768px){
+    body {
+      padding: 20px;
+    }
+    #searchInput {
+      width: 200px;
+    }
+  }
+</style>
 </head>
 <body>
-    <h1>4x4 Grid Permutation Comparator</h1>
-    
-    <div class="controls">
-        <button id="generateBtn">Generate New Grids</button>
-        <button id="highlightBtn">Highlight Matching Permutations</button>
-    </div>
-    
-    <div class="container">
-        <div class="grid-container">
-            <h2>Grid 1: Full Row Permutations (24/12/6/4/1)</h2>
-            <div class="grid" id="grid1"></div>
-            <div class="stats" id="stats1"></div>
-        </div>
-        
-        <div class="grid-container">
-            <h2>Grid 2: Sorted Rows (Unique Permutations)</h2>
-            <div class="grid" id="grid2"></div>
-            <div class="stats" id="stats2"></div>
-        </div>
-    </div>
-    
-    <div class="permutation-info">
-        <h3>About Permutation Patterns:</h3>
-        <p>This tool demonstrates how different sorting approaches affect the appearance of identical permutations in 4x4 grids.</p>
-        <ul>
-            <li><strong>Grid 1</strong> shows all possible row permutations (24 for unique numbers, 12 when two numbers match, etc.)</li>
-            <li><strong>Grid 2</strong> shows each row sorted in ascending order, revealing the underlying permutation patterns</li>
-            <li>Identical permutations will appear different in Grid 1 but identical in Grid 2 when highlighted</li>
-        </ul>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const grid1 = document.getElementById('grid1');
-            const grid2 = document.getElementById('grid2');
-            const generateBtn = document.getElementById('generateBtn');
-            const highlightBtn = document.getElementById('highlightBtn');
-            const stats1 = document.getElementById('stats1');
-            const stats2 = document.getElementById('stats2');
-            
-            let currentGrid1 = [];
-            let currentGrid2 = [];
-            
-            generateBtn.addEventListener('click', generateGrids);
-            highlightBtn.addEventListener('click', highlightMatches);
-            
-            function generateGrids() {
-                // Clear previous grids and highlights
-                grid1.innerHTML = '';
-                grid2.innerHTML = '';
-                removeHighlights();
-                
-                // Generate Grid 1 with random permutations
-                currentGrid1 = [];
-                const numbers = [1, 2, 3, 4];
-                
-                // Generate 4 rows with different permutation types
-                currentGrid1.push(shuffleArray([...numbers])); // 24 permutations (all unique)
-                currentGrid1.push(createPermutationWithDuplicates([...numbers], 2)); // 12 permutations (one duplicate)
-                currentGrid1.push(createPermutationWithDuplicates([...numbers], 3)); // 6 permutations (three same)
-                currentGrid1.push([...numbers].fill(numbers[0])); // 1 permutation (all same)
-                
-                // Generate Grid 2 with sorted versions of Grid 1's permutations
-                currentGrid2 = currentGrid1.map(row => [...row].sort((a, b) => a - b));
-                
-                // Display the grids
-                displayGrid(grid1, currentGrid1);
-                displayGrid(grid2, currentGrid2);
-                
-                // Update statistics
-                updateStats();
-            }
-            
-            function displayGrid(gridElement, gridData) {
-                gridData.forEach(row => {
-                    row.forEach(num => {
-                        const cell = document.createElement('div');
-                        cell.className = 'cell';
-                        cell.textContent = num;
-                        gridElement.appendChild(cell);
-                    });
-                });
-            }
-            
-            function shuffleArray(array) {
-                // Fisher-Yates shuffle algorithm
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-            
-            function createPermutationWithDuplicates(array, duplicateCount) {
-                // Create a permutation with specified number of duplicates
-                const val = array[0];
-                const result = [];
-                
-                // Add the duplicate values
-                for (let i = 0; i < duplicateCount; i++) {
-                    result.push(val);
-                }
-                
-                // Add the remaining unique values
-                for (let i = 1; i < array.length - (duplicateCount - 1); i++) {
-                    result.push(array[i]);
-                }
-                
-                // Shuffle the result
-                return shuffleArray(result);
-            }
-            
-            function highlightMatches() {
-                removeHighlights();
-                
-                // Get all cells
-                const cells1 = grid1.querySelectorAll('.cell');
-                const cells2 = grid2.querySelectorAll('.cell');
-                
-                // Create a map of sorted permutations to their positions in Grid 2
-                const permutationMap = {};
-                for (let i = 0; i < 4; i++) {
-                    const startIdx = i * 4;
-                    const key = currentGrid2[i].join(',');
-                    if (!permutationMap[key]) {
-                        permutationMap[key] = [];
-                    }
-                    permutationMap[key].push(startIdx);
-                }
-                
-                // Highlight matching permutations in Grid 1 based on Grid 2's sorted versions
-                for (let i = 0; i < 4; i++) {
-                    const startIdx = i * 4;
-                    const row = currentGrid1[i];
-                    const sortedRow = [...row].sort((a, b) => a - b);
-                    const key = sortedRow.join(',');
-                    
-                    if (permutationMap[key]) {
-                        // Highlight this row in Grid 1
-                        for (let j = 0; j < 4; j++) {
-                            cells1[startIdx + j].classList.add('highlight');
-                        }
-                        
-                        // Highlight corresponding rows in Grid 2
-                        permutationMap[key].forEach(idx => {
-                            for (let j = 0; j < 4; j++) {
-                                cells2[idx + j].classList.add('highlight');
-                            }
-                        });
-                    }
-                }
-            }
-            
-            function removeHighlights() {
-                document.querySelectorAll('.highlight').forEach(el => {
-                    el.classList.remove('highlight');
-                });
-            }
-            
-            function updateStats() {
-                // Count unique permutations in each grid
-                const uniquePerms1 = new Set();
-                const uniquePerms2 = new Set();
-                
-                currentGrid1.forEach(row => {
-                    uniquePerms1.add(row.join(','));
-                });
-                
-                currentGrid2.forEach(row => {
-                    uniquePerms2.add(row.join(','));
-                });
-                
-                stats1.innerHTML = `
-                    <p><strong>Permutation Types:</strong> ${uniquePerms1.size} unique row patterns</p>
-                    <p>Contains: 24, 12, 6, 4, and 1 permutation types</p>
-                `;
-                
-                stats2.innerHTML = `
-                    <p><strong>Permutation Types:</strong> ${uniquePerms2.size} unique sorted patterns</p>
-                    <p>Identical permutations are now visually comparable</p>
-                `;
-            }
-            
-            // Generate initial grids
-            generateGrids();
-        });
-    </script>
+<h1><i class="fas fa-dice-d20"></i> 🧙‍♂️ Permutation Generator & Filter <i class="fas fa-cogs"></i></h1>
+
+<!-- Input grids -->
+<div class="container">
+  <!-- Grid 1 -->
+  <div class="grid-section" id="grid1-section">
+    <h2><i class="fas fa-layer-group"></i> Grid 1</h2>
+    <div class="grid" id="grid1">
+      <input maxlength="1" value="1" /> <input maxlength="1" value="3" /> <input maxlength="1" value="4" /> <input maxlength="1" value="6" />
+      <input maxlength="1" value="3" /> <input maxlength="1" value="4" /> <input maxlength="1" value="7" /> <input maxlength="1" value="6" />
+      <input maxlength="1" value="4" /> <input maxlength="1" value="6" /> <input maxlength="1" value="7" /> <input maxlength="1" value="8" />
+      <input maxlength="1" value="2" /> <input maxlength="1" value="5" /> <input maxlength="1" value="7" /> <input maxlength="1" value="9" />
+    </div>
+  </div>
+  <!-- Grid 2 -->
+  <div class="grid-section" id="grid2-section">
+    <h2><i class="fas fa-layer-group"></i> Grid 2</h2>
+    <div class="grid" id="grid2">
+      <input maxlength="1" value="2" /> <input maxlength="1" value="4" /> <input maxlength="1" value="5" /> <input maxlength="1" value="7" />
+      <input maxlength="1" value="3" /> <input maxlength="1" value="5" /> <input maxlength="1" value="8" /> <input maxlength="1" value="7" />
+      <input maxlength="1" value="4" /> <input maxlength="1" value="7" /> <input maxlength="1" value="8" /> <input maxlength="1" value="9" />
+      <input maxlength="1" value="1" /> <input maxlength="1" value="4" /> <input maxlength="1" value="6" /> <input maxlength="1" value="8" />
+    </div>
+  </div>
+</div>
+
+<!-- Generate Button with bounce animation -->
+<button id="generateBtn" style="animation: bounce 2s infinite;">🔄 Generate & Categorize</button>
+
+<!-- Search section with icon -->
+<div id="search-section">
+  <h3><i class="fas fa-search"></i> Search for sequences</h3>
+  <input type="text" id="searchInput" placeholder='e.g., 1, 13, 134, 48' />
+  <button id="searchBtn"><i class="fas fa-magnifying-glass"></i> Search</button>
+  <button id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
+</div>
+
+<!-- Results Display with fade-in effect -->
+<div id="results" style="display:none;">
+  <h2 style="text-align:center; color:#fff;"><i class="fas fa-list"></i> Results</h2>
+  <div style="display:flex; flex-wrap:wrap; justify-content: center; gap:30px;">
+    <div id="results-grid1" class="result-column"></div>
+    <div id="results-grid2" class="result-column"></div>
+  </div>
+</div>
+
+<script>
+/* Store all permutations for filtering */
+let allCombosGrid1 = [];
+let allCombosGrid2 = [];
+
+/* Helper to get columns from grid inputs */
+function getColumns(gridId) {
+  const inputs = document.querySelectorAll(`#${gridId} input`);
+  const columns = [[], [], [], []];
+  for (let colIdx=0; colIdx<4; colIdx++) {
+    for (let rowIdx=0; rowIdx<4; rowIdx++) {
+      const idx = rowIdx*4 + colIdx;
+      const val = inputs[idx].value.trim();
+      if (val !== '') {
+        columns[colIdx].push(val);
+      }
+    }
+  }
+  return columns;
+}
+
+/* Generate all unique combination permutations */
+function generateUniqueCombinations(columns) {
+  const set = new Set();
+  for (let a of columns[0]) {
+    for (let b of columns[1]) {
+      for (let c of columns[2]) {
+        for (let d of columns[3]) {
+          set.add(a + b + c + d);
+        }
+      }
+    }
+  }
+  return Array.from(set);
+}
+
+/* Categorize permutations based on digit uniqueness */
+function categorize(combos) {
+  const categories = {
+    '24-WAY': [],
+    '12-WAY': [],
+    '6-WAY': [],
+    '4-WAY': []
+  };
+  new Set(combos).forEach(c => {
+    const digits = c.split('');
+    const counts = {};
+    digits.forEach(d => { counts[d] = (counts[d] || 0) + 1; });
+    const uniqueCount = Object.keys(counts).length;
+    const countValues = Object.values(counts);
+    if (uniqueCount === 4) categories['24-WAY'].push(c);
+    else if (uniqueCount ===3 && countValues.includes(2)) categories['12-WAY'].push(c);
+    else if (uniqueCount ===2) {
+      const pairs = countValues.filter(v => v===2).length;
+      const triplets = countValues.includes(3);
+      if (pairs===2) categories['6-WAY'].push(c);
+      if (triplets) categories['4-WAY'].push(c);
+    }
+  });
+  return categories;
+}
+
+/* Creates a section for each category with permutations */
+function createCategorySection(title, combos) {
+  const sec = document.createElement('div');
+  sec.className = 'category';
+  sec.innerHTML = `<h3>${title} (${combos.length})</h3><pre>${combos.join(' ')}</pre>`;
+  return sec;
+}
+
+/* Generate permutations and display categorized results */
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const col1 = getColumns('grid1');
+  const col2 = getColumns('grid2');
+
+  allCombosGrid1 = generateUniqueCombinations(col1);
+  allCombosGrid2 = generateUniqueCombinations(col2);
+
+  const cats1 = categorize(allCombosGrid1);
+  const cats2 = categorize(allCombosGrid2);
+
+  // Show results container with fade-in
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.style.display='flex';
+
+  // Animate fade-in
+  resultsDiv.style.opacity='0';
+  setTimeout(() => { resultsDiv.style.opacity='1'; }, 50);
+
+  const container1 = document.getElementById('results-grid1');
+  const container2 = document.getElementById('results-grid2');
+  container1.innerHTML=''; container2.innerHTML='';
+
+  // Populate categories
+  for (const [category, combos] of Object.entries(cats1)) {
+    container1.appendChild(createCategorySection(`Grid 1 - ${category}`, combos));
+  }
+  for (const [category, combos] of Object.entries(cats2)) {
+    container2.appendChild(createCategorySection(`Grid 2 - ${category}`, combos));
+  }
+});
+
+/* Search button: filter permutations containing sequence */
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const seq = document.getElementById('searchInput').value.trim();
+  if (!seq) {
+    alert('Please enter a sequence to search for.');
+    return;
+  }
+
+  const filterCombos = (combos) => combos.filter(c => c.includes(seq));
+
+  // Clear current display
+  document.getElementById('results-grid1').innerHTML='';
+  document.getElementById('results-grid2').innerHTML='';
+
+  // Show filtered results with fade-in
+  const showFilteredResults = (combos, containerId, title) => {
+    const container = document.getElementById(containerId);
+    if (combos.length > 0) {
+      container.appendChild(createCategorySection(`Grid - containing "${seq}"`, combos));
+    } else {
+      container.innerHTML = `<p style="color:#fff;">No results with "${seq}"</p>`;
+    }
+  };
+
+  showFilteredResults(filterCombos(allCombosGrid1), 'results-grid1', 'Grid 1');
+  showFilteredResults(filterCombos(allCombosGrid2), 'results-grid2', 'Grid 2');
+
+  // Animate fade-in
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.style.opacity='0';
+  resultsDiv.style.display='flex';
+  setTimeout(() => { resultsDiv.style.opacity='1'; }, 50);
+});
+
+/* Reset button to show all permutations with fade-in effect */
+document.getElementById('resetBtn').addEventListener('click', () => {
+  const cats1 = categorize(allCombosGrid1);
+  const cats2 = categorize(allCombosGrid2);
+  const container1 = document.getElementById('results-grid1');
+  const container2 = document.getElementById('results-grid2');
+
+  container1.innerHTML=''; container2.innerHTML='';
+
+  for (const [category, combos] of Object.entries(cats1)) {
+    container1.appendChild(createCategorySection(`Grid 1 - ${category}`, combos));
+  }
+  for (const [category, combos] of Object.entries(cats2)) {
+    container2.appendChild(createCategorySection(`Grid 2 - ${category}`, combos));
+  }
+
+  // Animate fade-in
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.style.opacity='0';
+  resultsDiv.style.display='flex';
+  setTimeout(() => { resultsDiv.style.opacity='1'; }, 50);
+});
+</script>
+
 </body>
 </html>
