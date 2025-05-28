@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4x4 Grid Permutation Comparator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .grid-container {
+            width: 48%;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .cell {
+            border: 1px solid #ccc;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .stats {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            animation: pulse 1s;
+        }
+        @keyframes pulse {
+            0% { background-color: #ffeb3b; }
+            50% { background-color: #ffc107; }
+            100% { background-color: #ffeb3b; }
+        }
+        .permutation-info {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>4x4 Grid Permutation Comparator</h1>
+    
+    <div class="controls">
+        <button id="generateBtn">Generate New Grids</button>
+        <button id="highlightBtn">Highlight Matching Permutations</button>
+    </div>
+    
+    <div class="container">
+        <div class="grid-container">
+            <h2>Grid 1: Full Row Permutations (24/12/6/4/1)</h2>
+            <div class="grid" id="grid1"></div>
+            <div class="stats" id="stats1"></div>
+        </div>
+        
+        <div class="grid-container">
+            <h2>Grid 2: Sorted Rows (Unique Permutations)</h2>
+            <div class="grid" id="grid2"></div>
+            <div class="stats" id="stats2"></div>
+        </div>
+    </div>
+    
+    <div class="permutation-info">
+        <h3>About Permutation Patterns:</h3>
+        <p>This tool demonstrates how different sorting approaches affect the appearance of identical permutations in 4x4 grids.</p>
+        <ul>
+            <li><strong>Grid 1</strong> shows all possible row permutations (24 for unique numbers, 12 when two numbers match, etc.)</li>
+            <li><strong>Grid 2</strong> shows each row sorted in ascending order, revealing the underlying permutation patterns</li>
+            <li>Identical permutations will appear different in Grid 1 but identical in Grid 2 when highlighted</li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const grid1 = document.getElementById('grid1');
+            const grid2 = document.getElementById('grid2');
+            const generateBtn = document.getElementById('generateBtn');
+            const highlightBtn = document.getElementById('highlightBtn');
+            const stats1 = document.getElementById('stats1');
+            const stats2 = document.getElementById('stats2');
+            
+            let currentGrid1 = [];
+            let currentGrid2 = [];
+            
+            generateBtn.addEventListener('click', generateGrids);
+            highlightBtn.addEventListener('click', highlightMatches);
+            
+            function generateGrids() {
+                // Clear previous grids and highlights
+                grid1.innerHTML = '';
+                grid2.innerHTML = '';
+                removeHighlights();
+                
+                // Generate Grid 1 with random permutations
+                currentGrid1 = [];
+                const numbers = [1, 2, 3, 4];
+                
+                // Generate 4 rows with different permutation types
+                currentGrid1.push(shuffleArray([...numbers])); // 24 permutations (all unique)
+                currentGrid1.push(createPermutationWithDuplicates([...numbers], 2)); // 12 permutations (one duplicate)
+                currentGrid1.push(createPermutationWithDuplicates([...numbers], 3)); // 6 permutations (three same)
+                currentGrid1.push([...numbers].fill(numbers[0])); // 1 permutation (all same)
+                
+                // Generate Grid 2 with sorted versions of Grid 1's permutations
+                currentGrid2 = currentGrid1.map(row => [...row].sort((a, b) => a - b));
+                
+                // Display the grids
+                displayGrid(grid1, currentGrid1);
+                displayGrid(grid2, currentGrid2);
+                
+                // Update statistics
+                updateStats();
+            }
+            
+            function displayGrid(gridElement, gridData) {
+                gridData.forEach(row => {
+                    row.forEach(num => {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.textContent = num;
+                        gridElement.appendChild(cell);
+                    });
+                });
+            }
+            
+            function shuffleArray(array) {
+                // Fisher-Yates shuffle algorithm
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            function createPermutationWithDuplicates(array, duplicateCount) {
+                // Create a permutation with specified number of duplicates
+                const val = array[0];
+                const result = [];
+                
+                // Add the duplicate values
+                for (let i = 0; i < duplicateCount; i++) {
+                    result.push(val);
+                }
+                
+                // Add the remaining unique values
+                for (let i = 1; i < array.length - (duplicateCount - 1); i++) {
+                    result.push(array[i]);
+                }
+                
+                // Shuffle the result
+                return shuffleArray(result);
+            }
+            
+            function highlightMatches() {
+                removeHighlights();
+                
+                // Get all cells
+                const cells1 = grid1.querySelectorAll('.cell');
+                const cells2 = grid2.querySelectorAll('.cell');
+                
+                // Create a map of sorted permutations to their positions in Grid 2
+                const permutationMap = {};
+                for (let i = 0; i < 4; i++) {
+                    const startIdx = i * 4;
+                    const key = currentGrid2[i].join(',');
+                    if (!permutationMap[key]) {
+                        permutationMap[key] = [];
+                    }
+                    permutationMap[key].push(startIdx);
+                }
+                
+                // Highlight matching permutations in Grid 1 based on Grid 2's sorted versions
+                for (let i = 0; i < 4; i++) {
+                    const startIdx = i * 4;
+                    const row = currentGrid1[i];
+                    const sortedRow = [...row].sort((a, b) => a - b);
+                    const key = sortedRow.join(',');
+                    
+                    if (permutationMap[key]) {
+                        // Highlight this row in Grid 1
+                        for (let j = 0; j < 4; j++) {
+                            cells1[startIdx + j].classList.add('highlight');
+                        }
+                        
+                        // Highlight corresponding rows in Grid 2
+                        permutationMap[key].forEach(idx => {
+                            for (let j = 0; j < 4; j++) {
+                                cells2[idx + j].classList.add('highlight');
+                            }
+                        });
+                    }
+                }
+            }
+            
+            function removeHighlights() {
+                document.querySelectorAll('.highlight').forEach(el => {
+                    el.classList.remove('highlight');
+                });
+            }
+            
+            function updateStats() {
+                // Count unique permutations in each grid
+                const uniquePerms1 = new Set();
+                const uniquePerms2 = new Set();
+                
+                currentGrid1.forEach(row => {
+                    uniquePerms1.add(row.join(','));
+                });
+                
+                currentGrid2.forEach(row => {
+                    uniquePerms2.add(row.join(','));
+                });
+                
+                stats1.innerHTML = `
+                    <p><strong>Permutation Types:</strong> ${uniquePerms1.size} unique row patterns</p>
+                    <p>Contains: 24, 12, 6, 4, and 1 permutation types</p>
+                `;
+                
+                stats2.innerHTML = `
+                    <p><strong>Permutation Types:</strong> ${uniquePerms2.size} unique sorted patterns</p>
+                    <p>Identical permutations are now visually comparable</p>
+                `;
+            }
+            
+            // Generate initial grids
+            generateGrids();
+        });
+    </script>
+</body>
+</html>
