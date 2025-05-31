@@ -285,8 +285,8 @@
 
 <!-- Search area with icons -->
 <div id="search-section">
-  <h3><i class="fas fa-search"></i> Search for sequences</h3>
-  <input type="text" id="searchInput" placeholder='e.g., 1, 13, 134, 48' />
+  <h3><i class="fas fa-search"></i> Search for digits</h3>
+  <input type="text" id="searchInput" placeholder='e.g., 1 3 4' />
   <button id="searchBtn"><i class="fas fa-magnifying-glass"></i> Search</button>
   <button id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
 </div>
@@ -301,7 +301,7 @@
 </div>
 
 <script>
-/* JavaScript core logic, unchanged, with added comments and slight improvements for clarity */
+/* JavaScript core logic, with search modifications for digit-based search */
 
 let allCombosGrid1 = [];
 let allCombosGrid2 = [];
@@ -396,27 +396,36 @@ document.getElementById('generateBtn').addEventListener('click', () => {
   }
 });
 
-// Search button with animated fade-in
+// Search button with digit-based search logic
 document.getElementById('searchBtn').addEventListener('click', () => {
-  const seq = document.getElementById('searchInput').value.trim();
-  if (!seq) {
-    alert('Please enter a sequence to search for.');
+  const rawInput = document.getElementById('searchInput').value.trim();
+  if (!rawInput) {
+    alert('Please enter digits to search for.');
     return;
   }
 
-  const filterCombos = (combos) => combos.filter(c => c.includes(seq));
+  // Split input into individual digits, ignoring spaces
+  const digitsToFind = rawInput.split('').filter(d => d.trim() !== '');
+
+  // Function to check if sequence contains all specified digits
+  const sequenceContainsDigits = (sequence, digits) => {
+    return digits.every(d => sequence.includes(d));
+  };
+
+  // Filter combos for each grid based on containing all input digits
+  const filterCombos = (combos) => combos.filter(c => sequenceContainsDigits(c, digitsToFind));
 
   // Clear previous results
-  document.getElementById('results-grid1').innerHTML='';
-  document.getElementById('results-grid2').innerHTML='';
+  document.getElementById('results-grid1').innerHTML = '';
+  document.getElementById('results-grid2').innerHTML = '';
 
-  // Show filtered results with fade-in effect
+  // Show filtered results
   const showFilteredResults = (combos, containerId) => {
     const container = document.getElementById(containerId);
     if (combos.length > 0) {
-      container.appendChild(createCategorySection(`Grid - containing "${seq}"`, combos));
+      container.appendChild(createCategorySection(`Grid - containing digits "${rawInput}"`, combos));
     } else {
-      container.innerHTML = `<p style="color:#fff;">No results with "${seq}"</p>`;
+      container.innerHTML = `<p style="color:#fff;">No results containing digits "${rawInput}"</p>`;
     }
   };
 
